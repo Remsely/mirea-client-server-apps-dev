@@ -1,4 +1,4 @@
-package edu.mirea.remsely.csad.semester7.task2;
+package edu.mirea.remsely.csad.semester7.practice2.task2;
 
 import org.apache.commons.io.FileUtils;
 

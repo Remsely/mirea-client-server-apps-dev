@@ -1,4 +1,4 @@
-package edu.mirea.remsely.csad.semester7.task3;
+package edu.mirea.remsely.csad.semester7.practice2.task3;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -10,7 +10,7 @@ public class Checksum16 {
     private static final int BUFFER_SIZE = 64 * 1024;
 
     public static void main(String[] args) throws IOException {
-        Path p = Path.of("src/main/java/edu/mirea/remsely/csad/semester7/task3/file_to_checksum.txt");
+        Path p = Path.of("src/main/java/edu/mirea/remsely/csad/semester7/practice2/task3/file_to_checksum.txt");
 
         int s1 = simpleByteSum16(p);
 

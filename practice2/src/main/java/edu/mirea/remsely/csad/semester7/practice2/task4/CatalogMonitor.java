@@ -1,6 +1,6 @@
-package edu.mirea.remsely.csad.semester7.task4;
+package edu.mirea.remsely.csad.semester7.practice2.task4;
 
-import edu.mirea.remsely.csad.semester7.task3.Checksum16;
+import edu.mirea.remsely.csad.semester7.practice2.task3.Checksum16;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -28,7 +28,7 @@ public class CatalogMonitor {
     public static void main(String[] args) throws IOException, InterruptedException {
         WatchService watchService = FileSystems.getDefault().newWatchService();
 
-        Path dirToWatch = Paths.get("src/main/java/edu/mirea/remsely/csad/semester7/task4");
+        Path dirToWatch = Paths.get("src/main/java/edu/mirea/remsely/csad/semester7/practice2/task4");
 
         dirToWatch.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
         System.out.println("Monitoring catalog: " + dirToWatch.toAbsolutePath());
