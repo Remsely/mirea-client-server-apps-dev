@@ -1,27 +1,42 @@
-# === Gradle ===
-.gradle/
+.gradle
 build/
-out/
 !gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# === IntelliJ IDEA / JetBrains IDEs ===
-.idea/
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
 *.iml
 *.ipr
-*.iws
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
-# === Eclipse ===
-.project
+### Eclipse ###
+.apt_generated
 .classpath
-.settings/
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
 
-# === VS Code ===
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
 .vscode/
 
-# === Java ===
-*.class
-*.log
-
-# === ОСные файлы ===
+### Mac OS ###
 .DS_Store
-Thumbs.db
