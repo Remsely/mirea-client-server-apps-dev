@@ -1,4 +1,4 @@
-rootProject.name = "practice4-rsocket"
+rootProject.name = "practice-4-rsocket"
 
 include(
     "f1-api-server",

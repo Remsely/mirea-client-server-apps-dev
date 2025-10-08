@@ -1,1 +1,1 @@
-rootProject.name = "practice3-rxjava"
+rootProject.name = "practice-3-rxjava"
