@@ -1,1 +1,1 @@
-rootProject.name = "practice2-java-nio"
+rootProject.name = "practice-2-java-nio"
