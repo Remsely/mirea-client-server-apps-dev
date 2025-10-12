@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: ${NAME_APP:app1}
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 100MB
+
+app:
+  path:
+    upload:
+      file: /upload-files

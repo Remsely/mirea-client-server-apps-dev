@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed File System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .instance-info {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .stats {
+            display: inline-block;
+            margin-left: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .upload-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #e9ecef;
+            border-color: #764ba2;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .files-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .files-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .file-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .file-meta {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .no-files {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.1em;
+        }
+
+        .selected-files {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #666;
+            display: none;
+        }
+
+        .selected-files.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🗂️ Distributed File System</h1>
+        <span class="instance-info" th:text="${'Instance: ' + appName}">Instance: app1</span>
+        <span class="stats" th:text="${'Total Files: ' + totalFiles}">Total Files: 0</span>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <div class="upload-section">
+        <h2>📤 Upload Files</h2>
+        <form method="post" action="/upload" enctype="multipart/form-data">
+            <div class="file-input-wrapper">
+                <input type="file" name="files" id="file-input" multiple required onchange="displaySelectedFiles()">
+                <label for="file-input" class="file-input-label">
+                    📁 Click to select files or drag and drop
+                </label>
+            </div>
+            <div id="selected-files" class="selected-files"></div>
+            <button type="submit" class="upload-btn">Upload Files</button>
+        </form>
+    </div>
+
+    <div class="files-section">
+        <h2>📋 Uploaded Files</h2>
+        <div class="file-list" th:if="${files != null && !files.isEmpty()}">
+            <div class="file-item" th:each="file : ${files}">
+                <div class="file-info">
+                    <div class="file-name" th:text="${file.name}">filename.txt</div>
+                    <div class="file-meta">
+                        <span th:text="${file.date}">12:00 01.01.2024</span>
+                        <span> • </span>
+                        <span th:text="${file.size}">1.2 MB</span>
+                    </div>
+                </div>
+                <a th:href="${file.url}" class="download-btn" download>⬇️ Download</a>
+            </div>
+        </div>
+        <div class="no-files" th:if="${files == null || files.isEmpty()}">
+            No files uploaded yet. Start by uploading some files!
+        </div>
+    </div>
+</div>
+
+<script>
+    function displaySelectedFiles() {
+        const input = document.getElementById('file-input');
+        const display = document.getElementById('selected-files');
+
+        if (input.files.length > 0) {
+            const fileNames = Array.from(input.files).map(f => f.name).join(', ');
+            display.textContent = `Selected: ${fileNames}`;
+            display.classList.add('show');
+        } else {
+            display.classList.remove('show');
+        }
+    }
+</script>
+</body>
+</html>

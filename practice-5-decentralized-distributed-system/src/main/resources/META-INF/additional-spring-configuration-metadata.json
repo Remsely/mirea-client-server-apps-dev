@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "app.path.upload.file",
+      "type": "java.lang.String",
+      "description": "File upload url."
+    }
+  ]
+}
