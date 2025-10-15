@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public class ReadFileStream {
     public static void main(String[] args) {
-        String fileName = "src/main/java/edu/mirea/remsely/csad/semester7/practice2/task1/task1_file.txt";
+        String fileName = "practice-2-java-nio/src/main/java/edu/mirea/remsely/csad/semester7/practice2/task1/task1_file.txt";
         Path path = Path.of(fileName);
 
         try (Stream<String> lines = Files.lines(path, StandardCharsets.UTF_8)) {

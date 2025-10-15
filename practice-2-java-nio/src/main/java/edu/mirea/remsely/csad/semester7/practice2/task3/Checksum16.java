@@ -10,10 +10,10 @@ public class Checksum16 {
     private static final int BUFFER_SIZE = 64 * 1024;
 
     public static void main(String[] args) throws IOException {
-        Path p = Path.of("src/main/java/edu/mirea/remsely/csad/semester7/practice2/task3/file_to_checksum.txt");
-
+        Path p = Path.of(
+                "practice-2-java-nio/src/main/java/edu/mirea/remsely/csad/semester7/practice2/task3/file_to_checksum.txt"
+        );
         int s1 = simpleByteSum16(p);
-
         System.out.printf("Simple byte sum : 0x%04X (%d)%n", s1, s1);
     }
 
