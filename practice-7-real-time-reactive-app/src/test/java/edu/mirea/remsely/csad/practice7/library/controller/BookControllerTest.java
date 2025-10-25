@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 
 @WebFluxTest(controllers = BookController.class)
@@ -132,5 +133,78 @@ class BookControllerTest {
         assert firstTwo != null;
         org.assertj.core.api.Assertions.assertThat(firstTwo)
                 .containsExactly(new BookDto(1L, "T1", "A1"), new BookDto(2L, "T2", "A2"));
+    }
+
+    @Test
+    void backpressure_drop_shouldSkipSomeIds() {
+        var result = webTestClient.get()
+                .uri("/books/stream/drop")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(BookDto.class);
+
+        List<BookDto> items = result.getResponseBody()
+                .take(30)
+                .timeout(Duration.ofSeconds(3))
+                .collectList()
+                .block();
+
+        assert items != null;
+        // Проверяем, что есть пропуски id (не непрерывная последовательность)
+        boolean hasGap = false;
+        for (int i = 1; i < items.size(); i++) {
+            long prev = items.get(i - 1).getId();
+            long cur = items.get(i).getId();
+            if (cur - prev > 1) {
+                hasGap = true;
+                break;
+            }
+        }
+        assertThat(hasGap).isTrue();
+    }
+
+    @Test
+    void backpressure_buffer_shouldDeliverAtLeastBufferSizeEventually() {
+        var result = webTestClient.get()
+                .uri("/books/stream/buffer")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(BookDto.class);
+
+        List<BookDto> items = result.getResponseBody()
+                .take(20)
+                .timeout(Duration.ofSeconds(3))
+                .collectList()
+                .block();
+
+        assert items != null;
+        // Буфер 16, поэтому получить 20 элементов за разумное время реалистично
+        assertThat(items.size()).isGreaterThanOrEqualTo(16);
+    }
+
+    @Test
+    void backpressure_latest_shouldBeMonotonicIncreasingIds() {
+        var result = webTestClient.get()
+                .uri("/books/stream/latest")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk()
+                .returnResult(BookDto.class);
+
+        List<BookDto> items = result.getResponseBody()
+                .take(20)
+                .timeout(Duration.ofSeconds(3))
+                .collectList()
+                .block();
+
+        assert items != null;
+        // latest пропускает промежуточные элементы, но порядок должен быть монотонно неубывающий
+        for (int i = 1; i < items.size(); i++) {
+            Long prev = items.get(i - 1).getId();
+            Long cur = items.get(i).getId();
+            assertThat(cur).isGreaterThan(prev);
+        }
     }
 }

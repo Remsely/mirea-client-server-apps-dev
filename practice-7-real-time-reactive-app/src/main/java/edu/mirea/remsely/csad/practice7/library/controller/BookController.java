@@ -63,4 +63,31 @@ public class BookController {
                 .zipWith(interval)
                 .map(tuple -> BookMapper.toDto(tuple.getT1()));
     }
+
+    @GetMapping(value = "/stream/drop", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<BookDto> streamBooksDrop() {
+        return Flux.interval(Duration.ofMillis(1))
+                .onBackpressureDrop()
+                .map(i -> new BookDto(i, "Generated " + i, "System"))
+                .limitRate(1)
+                .take(1000);
+    }
+
+    @GetMapping(value = "/stream/buffer", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<BookDto> streamBooksBuffer() {
+        return Flux.interval(Duration.ofMillis(1))
+                .onBackpressureBuffer(16)
+                .map(i -> new BookDto(i, "Generated " + i, "System"))
+                .limitRate(1)
+                .take(1000);
+    }
+
+    @GetMapping(value = "/stream/latest", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<BookDto> streamBooksLatest() {
+        return Flux.interval(Duration.ofMillis(1))
+                .onBackpressureLatest()
+                .map(i -> new BookDto(i, "Generated " + i, "System"))
+                .limitRate(1)
+                .take(1000);
+    }
 }
