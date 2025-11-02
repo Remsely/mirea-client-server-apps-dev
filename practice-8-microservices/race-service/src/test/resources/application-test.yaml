@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: race-service
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: false
+
+  sql:
+    init:
+      mode: never
+
+server:
+  port: 0
+
+# Mock Feign клиенты для тестов
+feign:
+  client:
+    driver-service:
+      url: http://localhost:8081
+    team-service:
+      url: http://localhost:8082
+
+logging:
+  level:
+    edu.mirea.remsely: DEBUG

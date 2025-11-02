@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: race-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/races_db
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+
+server:
+  port: 8083
+
+# Feign клиенты
+feign:
+  client:
+    driver-service:
+      url: http://localhost:8081
+    team-service:
+      url: http://localhost:8082
