@@ -2,11 +2,31 @@
 
 java = "25"
 spring-boot = "3.5.7"
+spring-cloud = "2025.0.0"
 
 #-----------------------------------------------------------------------------------------------------------------------
 
 [libraries]
 
+# Spring Boot Starters
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+
+# Spring Cloud
+spring-cloud-bom = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
+spring-cloud-starter-config = { module = "org.springframework.cloud:spring-cloud-starter-config" }
+spring-cloud-starter-netflix-eureka-client = { module = "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client" }
+spring-cloud-starter-openfeign = { module = "org.springframework.cloud:spring-cloud-starter-openfeign" }
+
+# DB
+postgresql = { module = "org.postgresql:postgresql" }
+h2 = { module = "com.h2database:h2" }
+
+# Testing
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+
+# Utils
 lombok = { module = "org.projectlombok:lombok" }
 
 #-----------------------------------------------------------------------------------------------------------------------
