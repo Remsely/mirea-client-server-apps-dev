@@ -1,0 +1,284 @@
+services:
+  # ============== INFRASTRUCTURE ==============
+
+  # PostgreSQL databases
+  postgres-drivers:
+    image: postgres:15-alpine
+    container_name: postgres-drivers
+    environment:
+      POSTGRES_DB: drivers_db
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-drivers-data:/var/lib/postgresql/data
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U test -d drivers_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-teams:
+    image: postgres:15-alpine
+    container_name: postgres-teams
+    environment:
+      POSTGRES_DB: teams_db
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-teams-data:/var/lib/postgresql/data
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U test -d teams_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-races:
+    image: postgres:15-alpine
+    container_name: postgres-races
+    environment:
+      POSTGRES_DB: races_db
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-races-data:/var/lib/postgresql/data
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U test -d races_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: postgres-auth
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U test -d auth_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============== SPRING CLOUD INFRASTRUCTURE ==============
+
+  # Eureka Server (стартует первым, не зависит от Config Server)
+  eureka-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        JAR_FILE: eureka-server/build/libs/eureka-server-0.0.1-SNAPSHOT.jar
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # Config Server (стартует после Eureka)
+  config-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        JAR_FILE: config-server/build/libs/config-server-0.0.1-SNAPSHOT.jar
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,native
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ============== AUTH & GATEWAY ==============
+
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        JAR_FILE: auth-service/build/libs/auth-service-0.0.1-SNAPSHOT.jar
+    container_name: auth-service
+    ports:
+      - "9000:9000"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      postgres-auth:
+        condition: service_healthy
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        JAR_FILE: api-gateway/build/libs/api-gateway-0.0.1-SNAPSHOT.jar
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # ============== BUSINESS SERVICES ==============
+
+  # Driver Service
+  driver-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        JAR_FILE: driver-service/build/libs/driver-service-0.0.1-SNAPSHOT.jar
+    container_name: driver-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      postgres-drivers:
+        condition: service_healthy
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # Team Service
+  team-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        JAR_FILE: team-service/build/libs/team-service-0.0.1-SNAPSHOT.jar
+    container_name: team-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      postgres-teams:
+        condition: service_healthy
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # Race Service
+  race-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.service
+      args:
+        JAR_FILE: race-service/build/libs/race-service-0.0.1-SNAPSHOT.jar
+    container_name: race-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      postgres-races:
+        condition: service_healthy
+      driver-service:
+        condition: service_healthy
+      team-service:
+        condition: service_healthy
+    networks:
+      - f1-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+volumes:
+  postgres-drivers-data:
+  postgres-teams-data:
+  postgres-races-data:
+  postgres-auth-data:
+
+networks:
+  f1-network:
+    driver: bridge

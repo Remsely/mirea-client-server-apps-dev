@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+*.iml
+.vscode
+*.swp
+
+# Gradle
+.gradle
+!gradle/wrapper/gradle-wrapper.jar
+
+# Build artifacts (except libs)
+**/build/classes
+**/build/generated
+**/build/reports
+**/build/resources
+**/build/test-results
+**/build/tmp
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Test files
+**/src/test
+
+# Other
+*.log
+*.bak
+postman/
+

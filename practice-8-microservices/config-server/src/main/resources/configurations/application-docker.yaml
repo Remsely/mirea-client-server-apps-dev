@@ -1,0 +1,9 @@
+# Docker profile конфигурации для всех сервисов
+# Общие настройки для Docker окружения
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true

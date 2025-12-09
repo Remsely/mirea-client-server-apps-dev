@@ -9,6 +9,7 @@ dependencies {
 
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.actuator)
 
     implementation(libs.spring.cloud.starter.config)
     implementation(libs.spring.cloud.starter.netflix.eureka.client)

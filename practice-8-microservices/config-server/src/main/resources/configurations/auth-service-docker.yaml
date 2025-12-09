@@ -1,0 +1,18 @@
+server:
+  port: 9000
+
+auth:
+  issuer-uri: http://auth-service:9000
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres-auth:5432/auth_db
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
