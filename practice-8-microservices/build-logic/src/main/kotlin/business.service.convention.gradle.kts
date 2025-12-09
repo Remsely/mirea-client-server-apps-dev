@@ -1,15 +1,20 @@
 import edu.mirea.remsely.csad.practice8.conventions.extensions.implementation
 import edu.mirea.remsely.csad.practice8.conventions.extensions.libs
 
+
 plugins {
     id("spring.boot.app.convention")
     id("spring.cloud.convention")
+    id("test.commons.convention")
 }
 
 dependencies {
-    implementation(libs.spring.cloud.starter.gateway.server.webflux)
-    implementation(libs.spring.boot.starter.oauth2.resource.server)
-
+    implementation(project(":commons"))
+    implementation(libs.bundles.business.service)
     implementation(libs.bundles.spring.cloud.client)
-    implementation(libs.bundles.infrastructure.service)
+
+    runtimeOnly(libs.postgresql)
+
+    testImplementation(libs.bundles.testing)
+    testRuntimeOnly(libs.h2)
 }
