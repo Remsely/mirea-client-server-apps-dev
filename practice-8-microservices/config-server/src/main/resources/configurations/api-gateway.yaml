@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            # Auth Service (публичные эндпоинты)
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/oauth2/**,/.well-known/**
+
+            # Driver Service
+            - id: driver-service
+              uri: lb://driver-service
+              predicates:
+                - Path=/api/drivers/**
+
+            # Team Service
+            - id: team-service
+              uri: lb://team-service
+              predicates:
+                - Path=/api/teams/**
+
+            # Race Service
+            - id: race-service
+              uri: lb://race-service
+              predicates:
+                - Path=/api/races/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000
