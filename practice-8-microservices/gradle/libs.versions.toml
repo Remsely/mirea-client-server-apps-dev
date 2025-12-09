@@ -15,6 +15,7 @@ spring-boot-starter-validation = { module = "org.springframework.boot:spring-boo
 
 # Spring Cloud
 spring-cloud-bom = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
+spring-cloud-config-server = { module = "org.springframework.cloud:spring-cloud-config-server" }
 spring-cloud-starter-config = { module = "org.springframework.cloud:spring-cloud-starter-config" }
 spring-cloud-starter-netflix-eureka-server = { module = "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server" }
 spring-cloud-starter-netflix-eureka-client = { module = "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client" }
